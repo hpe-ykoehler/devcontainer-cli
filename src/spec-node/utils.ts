@@ -501,11 +501,13 @@ export async function runInitializeCommand(params: DockerResolverParameters, use
 
 }
 
-export function getFolderImageName(params: ResolverParameters | DockerCLIParameters) {
+export function getFolderImageName(params: ResolverParameters | DockerCLIParameters, idLabels) {
 	const { cwd } = 'cwd' in params ? params : params.cliHost;
 	const folderHash = getFolderHash(cwd);
+	const additionalLabels = labels ? idLabels.concat(Object.keys(labels).map(key => `${key}=${labels[key]}`)) : idLabels;
+	const idlabelHash = crypto.createHash('sha256').update(params['id-lable']).digest('hex')
 	const baseName = path.basename(cwd);
-	return toDockerImageName(`vsc-${baseName}-${folderHash}`);
+	return toDockerImageName(`vsc-${baseName}-${cwd}-${folderHash}`);
 }
 
 export function getFolderHash(fsPath: string): string {
